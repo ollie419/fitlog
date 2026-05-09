@@ -18,7 +18,7 @@
   --b1:#2a2a2a;--b2:#383838;
   --t1:#f2f2f2;--t2:#999;--t3:#555;--t4:#2e2e2e;
   --orange:#ff7000;--pr:#f5c542;
-  --f:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --f:Helvetica Neue,Helvetica,Arial,sans-serif;
   --r:4px;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -28,45 +28,42 @@ html,body{
   font-family:var(--f);font-size:15px;font-weight:500;
   overflow:hidden;-webkit-text-size-adjust:100%;
 }
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%}
 
-/* AUTH SCREEN */
+/* AUTH */
 #authScreen{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100vh;height:100dvh;padding:40px 24px;
+  height:100vh;height:100dvh;
+  padding:40px 24px;
   padding-top:calc(40px + var(--safe-top));
   padding-bottom:calc(40px + var(--safe-bottom));
 }
-.auth-logo{font-size:32px;font-weight:500;letter-spacing:6px;color:var(--t1);text-transform:uppercase;margin-bottom:8px}
+.auth-logo{font-size:32px;font-weight:500;letter-spacing:6px;text-transform:uppercase;margin-bottom:8px}
 .auth-logo em{color:var(--orange);font-style:normal}
-.auth-tagline{font-size:11px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:48px}
-.auth-tabs{display:flex;gap:0;margin-bottom:32px;border-bottom:1px solid var(--b1);width:100%}
-.auth-tab{flex:1;padding:12px 0;font-size:11px;letter-spacing:2px;color:var(--t3);
-  text-transform:uppercase;text-align:center;cursor:pointer;border:none;background:none;
-  border-bottom:2px solid transparent;font-family:var(--f);font-weight:500;outline:none}
+.auth-sub{font-size:11px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:48px}
+.auth-tabs{display:flex;width:100%;max-width:360px;border-bottom:1px solid var(--b1);margin-bottom:32px}
+.auth-tab{
+  flex:1;padding:12px 0;font-size:11px;letter-spacing:2px;color:var(--t3);
+  text-transform:uppercase;text-align:center;cursor:pointer;border:none;
+  background:none;border-bottom:2px solid transparent;
+  font-family:var(--f);font-weight:500;outline:none;transition:color .15s;
+}
 .auth-tab.on{color:var(--t1);border-bottom-color:var(--orange)}
-.auth-form{width:100%;max-width:360px}
-.auth-field{margin-bottom:20px}
+.auth-fields{width:100%;max-width:360px}
 .auth-input{
-  width:100%;background:transparent;border:none;border-bottom:1px solid var(--b2);
-  color:var(--t1);font-family:var(--f);font-size:16px;font-weight:500;
-  padding:10px 0;outline:none;transition:border-color .15s;
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--b2);color:var(--t1);
+  font-family:var(--f);font-size:16px;font-weight:500;
+  padding:10px 0;outline:none;margin-bottom:20px;display:block;
+  transition:border-color .15s;
 }
 .auth-input:focus{border-bottom-color:var(--orange)}
 .auth-input::placeholder{color:var(--t4);font-weight:400}
-.auth-btn{
-  width:100%;padding:17px;background:var(--orange);color:#fff;border:none;
-  font-family:var(--f);font-size:12px;font-weight:500;letter-spacing:3px;
-  text-transform:uppercase;cursor:pointer;border-radius:var(--r);
-  margin-top:8px;-webkit-appearance:none;
-}
-.auth-btn:active{opacity:.7}
-.auth-btn:disabled{opacity:.3}
-.auth-status{font-size:11px;color:var(--t3);text-align:center;padding:12px 0;min-height:36px}
+.auth-status{font-size:11px;text-align:center;padding:12px 0;min-height:36px;color:var(--t3)}
 .auth-status.err{color:#e55}
 .auth-status.ok{color:#5c5}
 
-/* TOPBAR */
+/* APP */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%;display:none}
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;padding-top:calc(12px + var(--safe-top));
@@ -74,11 +71,10 @@ html,body{
 }
 .logo{font-size:19px;font-weight:500;letter-spacing:4px;color:var(--t1);text-transform:uppercase}
 .logo em{color:var(--orange);font-style:normal}
-.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-right{display:flex;align-items:center;gap:14px}
 .datestamp{font-size:10px;letter-spacing:1.5px;color:var(--t3)}
-.signout-btn{background:none;border:none;color:var(--t3);font-family:var(--f);font-size:10px;
-  letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0}
-.signout-btn:active{color:var(--t1)}
+.signout{background:none;border:none;color:var(--t3);font-family:var(--f);font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0}
+.signout:active{color:var(--t1)}
 
 .tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
 .tab{
@@ -172,7 +168,6 @@ html,body{
 .set-row-info{font-size:12px;color:var(--t2);font-weight:400}
 .set-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:20px;padding:2px 8px;line-height:1}
 .set-del:active{color:var(--t1)}
-
 .save-routine-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--b1)}
 
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
@@ -250,31 +245,27 @@ html,body{
 <!-- AUTH SCREEN -->
 <div id="authScreen">
   <div class="auth-logo">FIT<em>LOG</em></div>
-  <div class="auth-tagline">Track your lifts</div>
+  <div class="auth-sub">Track your lifts</div>
   <div class="auth-tabs">
     <button class="auth-tab on" onclick="authTab('login')">Sign In</button>
     <button class="auth-tab" onclick="authTab('signup')">Sign Up</button>
   </div>
-  <div class="auth-form">
-    <div class="auth-field">
-      <input class="auth-input" id="authEmail" type="email" inputmode="email" placeholder="Email" autocomplete="email" autocapitalize="none"/>
-    </div>
-    <div class="auth-field">
-      <input class="auth-input" id="authPassword" type="password" placeholder="Password" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter') submitAuth()"/>
-    </div>
-    <button class="auth-btn" id="authBtn" onclick="submitAuth()">Sign In</button>
+  <div class="auth-fields">
+    <input class="auth-input" id="authEmail" type="email" inputmode="email" placeholder="Email" autocapitalize="none" autocomplete="email"/>
+    <input class="auth-input" id="authPassword" type="password" placeholder="Password" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter') submitAuth()"/>
+    <button class="btn-main" id="authBtn" onclick="submitAuth()">Sign In</button>
     <div class="auth-status" id="authStatus"></div>
   </div>
 </div>
 
 <!-- MAIN APP -->
-<div id="app" style="display:none">
+<div id="app">
   <div class="topbar">
     <div class="logo">FIT<em>LOG</em></div>
     <div class="topbar-right">
       <div class="datestamp" id="ds"></div>
-      <button class="signout-btn" onclick="signOut()">Sign out</button>
+      <button class="signout" onclick="signOut()">Sign out</button>
     </div>
   </div>
   <div class="tabs">
@@ -399,8 +390,7 @@ const LIBRARY = {
   Cardio:    ['Running','Cycling','Rowing','Jump Rope','Stair Climb','HIIT']
 };
 
-let allSets = [], todaySets = [], ch1 = null, ch2 = null, currentUser = null;
-let routines = [];
+let allSets = [], todaySets = [], routines = [], ch1 = null, ch2 = null, currentUser = null;
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 const fmtDate  = d  => new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
@@ -415,6 +405,7 @@ function toast(msg, dur=2800) {
 
 // ── AUTH ───────────────────────────────────────────────
 let authMode = 'login';
+
 function authTab(mode) {
   authMode = mode;
   document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('on', ['login','signup'][i] === mode));
@@ -428,39 +419,32 @@ async function submitAuth() {
   const password = document.getElementById('authPassword').value;
   const btn = document.getElementById('authBtn');
   const st  = document.getElementById('authStatus');
-  if (!email || !password) { st.textContent = 'Enter email and password'; st.className = 'auth-status err'; return; }
+  if (!email || !password) {
+    st.textContent = 'Enter email and password';
+    st.className = 'auth-status err';
+    return;
+  }
   btn.disabled = true;
-  st.textContent = authMode === 'login' ? 'Signing in...' : 'Creating account...';
   st.className = 'auth-status';
-  try {
-    let result;
-    if (authMode === 'login') {
-      result = await sb.auth.signInWithPassword({ email, password });
-    } else {
-      result = await sb.auth.signUp({ email, password });
-    }
-    if (result.error) throw result.error;
-    if (authMode === 'signup' && result.data?.user?.identities?.length === 0) {
-      st.textContent = 'Account already exists — try signing in.';
-      st.className = 'auth-status err';
-      btn.disabled = false;
-      return;
-    }
-    if (authMode === 'signup') {
-      st.textContent = 'Account created — signing you in...';
-      st.className = 'auth-status ok';
-    }
-    // session is set automatically, onAuthStateChange will fire
-  } catch(e) {
-    st.textContent = e.message || 'Something went wrong';
+  st.textContent = authMode === 'login' ? 'Signing in...' : 'Creating account...';
+  const { error } = authMode === 'login'
+    ? await sb.auth.signInWithPassword({ email, password })
+    : await sb.auth.signUp({ email, password });
+  if (error) {
+    st.textContent = error.message;
     st.className = 'auth-status err';
     btn.disabled = false;
+    return;
+  }
+  if (authMode === 'signup') {
+    st.textContent = 'Account created — signing you in...';
+    st.className = 'auth-status ok';
   }
 }
 
 async function signOut() {
   await sb.auth.signOut();
-  allSets = []; todaySets = []; currentUser = null;
+  allSets = []; todaySets = []; routines = []; currentUser = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('authScreen').style.display = 'flex';
   document.getElementById('authEmail').value = '';
@@ -469,7 +453,6 @@ async function signOut() {
   document.getElementById('authBtn').disabled = false;
 }
 
-// Listen for auth state changes
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     currentUser = session.user;
@@ -479,13 +462,16 @@ sb.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// ── DATA ───────────────────────────────────────────────
+// ── LOAD DATA ──────────────────────────────────────────
 async function loadData() {
   const st = document.getElementById('logStatus');
   st.textContent = 'loading...';
-  const { data, error } = await sb.from('sets').select('*').order('created_at', { ascending: true });
-  if (error) { st.textContent = '⚠ ' + error.message; st.className = 'status err'; return; }
-  allSets   = data || [];
+
+  const { data: sets, error: setsErr } = await sb
+    .from('sets').select('*').order('created_at', { ascending: true });
+  if (setsErr) { st.textContent = '⚠ ' + setsErr.message; st.className = 'status err'; return; }
+
+  allSets   = sets || [];
   todaySets = allSets.filter(s => s.logged_date === todayStr());
   const prMap = {};
   allSets.forEach(s => {
@@ -493,8 +479,11 @@ async function loadData() {
     s._pr = +s.weight > p;
     if (+s.weight > p) prMap[s.exercise_name] = +s.weight;
   });
-  // load routines per user
-  routines = JSON.parse(localStorage.getItem('fitlog_routines_' + currentUser.id) || '[]');
+
+  const { data: rdata } = await sb
+    .from('routines').select('*').order('created_at', { ascending: false });
+  routines = rdata || [];
+
   st.textContent = '';
   renderSummary();
 }
@@ -508,6 +497,7 @@ function onMuscleChange() {
   s.innerHTML = '<option value="">— select —</option>' + LIBRARY[m].map(e => `<option value="${e}">${e}</option>`).join('');
   s.disabled = false;
 }
+
 function onExerciseChange() {
   const v = document.getElementById('exerciseSelect').value;
   if (!v) return;
@@ -531,8 +521,10 @@ function renderSummary() {
   document.getElementById('sumEx').textContent   = exs.length;
   document.getElementById('sumVol').textContent  = tv;
   document.getElementById('saveRoutineWrap').style.display = exs.length ? 'block' : 'none';
+
   const bd = document.getElementById('summaryBreakdown');
   if (!exs.length) { bd.innerHTML = '<div class="summary-empty">Log a set to see your breakdown.</div>'; return; }
+
   bd.innerHTML = exs.map(ex => {
     const es    = todaySets.filter(s => s.exercise_name === ex);
     const mw    = Math.max(...es.map(s => +s.weight));
@@ -565,11 +557,13 @@ async function logSet() {
   const st  = document.getElementById('logStatus');
   const pr  = isPR(ex, weight);
   btn.disabled = true; st.textContent = 'saving...'; st.className = 'status';
+
   const { data, error } = await sb.from('sets').insert({
     exercise_name: ex, sets, reps, weight,
     logged_date: todayStr(),
     user_id: currentUser.id
   }).select().single();
+
   if (error) {
     st.textContent = '⚠ ' + error.message;
     st.className = 'status err';
@@ -583,7 +577,7 @@ async function logSet() {
   btn.disabled = false;
 }
 
-// ── DELETE ─────────────────────────────────────────────
+// ── DELETE SET ─────────────────────────────────────────
 async function delSet(id) {
   await sb.from('sets').delete().eq('id', id);
   allSets   = allSets.filter(s => s.id !== id);
@@ -600,14 +594,18 @@ function openModal() {
 function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
 function bgClick(e)   { if (e.target === document.getElementById('modalBg')) closeModal(); }
 
-function saveRoutine() {
+async function saveRoutine() {
   const name = document.getElementById('routineNameIn').value.trim();
   if (!name) return;
   const exercises = [...new Set(todaySets.map(s => s.exercise_name))];
-  routines.unshift({ id: Date.now(), name, exercises });
-  localStorage.setItem('fitlog_routines_' + currentUser.id, JSON.stringify(routines));
+  const { data, error } = await sb.from('routines').insert({
+    name, exercises, user_id: currentUser.id
+  }).select().single();
+  if (error) { toast('⚠ could not save routine'); return; }
+  routines.unshift(data);
   closeModal();
   toast('Saved: ' + name);
+  renderRoutines();
 }
 
 function loadRoutine(id) {
@@ -618,9 +616,9 @@ function loadRoutine(id) {
   toast('Loaded: ' + r.name);
 }
 
-function deleteRoutine(id) {
+async function deleteRoutine(id) {
+  await sb.from('routines').delete().eq('id', id);
   routines = routines.filter(r => r.id !== id);
-  localStorage.setItem('fitlog_routines_' + currentUser.id, JSON.stringify(routines));
   renderRoutines();
 }
 
@@ -635,8 +633,8 @@ function renderRoutines() {
       <div class="routine-name">${r.name}</div>
       <div class="routine-exlist">${r.exercises.join(' · ')}</div>
       <div class="routine-actions">
-        <button class="routine-btn load" onclick="loadRoutine(${r.id})">Load</button>
-        <button class="routine-btn" onclick="deleteRoutine(${r.id})">Delete</button>
+        <button class="routine-btn load" onclick="loadRoutine('${r.id}')">Load</button>
+        <button class="routine-btn" onclick="deleteRoutine('${r.id}')">Delete</button>
       </div>
     </div>`).join('');
 }
