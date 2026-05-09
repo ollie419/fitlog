@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#080808"/>
+<meta name="apple-mobile-web-app-title" content="FITLOG"/>
+<title>FITLOG</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080808;--s1:#111;--s2:#181818;
+  --b1:#2a2a2a;--b2:#383838;
+  --t1:#f2f2f2;--t2:#999;--t3:#555;--t4:#2e2e2e;
+  --orange:#ff7000;--pr:#f5c542;
+  --f:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --r:4px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{
+  height:100%;background:var(--bg);color:var(--t1);
+  font-family:var(--f);font-size:15px;font-weight:500;
+  overflow:hidden;-webkit-text-size-adjust:100%;
+}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;padding-top:calc(12px + var(--safe-top));
+  border-bottom:1px solid var(--b1);flex-shrink:0;
+}
+.logo{font-size:19px;font-weight:500;letter-spacing:4px;color:var(--t1);text-transform:uppercase}
+.logo em{color:var(--orange);font-style:normal}
+.datestamp{font-size:10px;letter-spacing:1.5px;color:var(--t3)}
+
+.tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
+.tab{
+  flex:1;padding:13px 0;font-size:10px;letter-spacing:1px;
+  color:var(--t3);cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;text-transform:uppercase;
+  outline:none;font-family:var(--f);font-weight:500;
+}
+.tab.on{color:var(--t1);border-bottom-color:var(--orange)}
+
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.panel{display:none;padding:20px 16px;padding-bottom:calc(32px + var(--safe-bottom))}
+.panel.on{display:block}
+
+.slabel{font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;display:block;font-weight:500}
+
+.select-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sel-wrap{display:flex;flex-direction:column}
+.styled-sel{
+  width:100%;background:var(--s1);border:1px solid var(--b2);
+  color:var(--t1);font-family:var(--f);font-size:14px;font-weight:500;
+  padding:13px 36px 13px 12px;border-radius:var(--r);outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23555'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  transition:border-color .15s;
+}
+.styled-sel:focus{border-color:var(--orange)}
+.styled-sel option{background:var(--s2)}
+.styled-sel:disabled{opacity:.35}
+
+.ghost{
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--b2);color:var(--t1);
+  font-family:var(--f);font-size:18px;font-weight:500;
+  padding:10px 0;outline:none;transition:border-color .15s;
+}
+.ghost:focus{border-bottom-color:var(--t1)}
+.ghost::placeholder{color:var(--t4);font-size:14px;font-weight:400}
+
+.num-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:18px 0}
+.nf{position:relative}
+.nf .unit{position:absolute;right:0;bottom:11px;font-size:10px;color:var(--t3);letter-spacing:1px}
+.ni{
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--b2);color:var(--t1);
+  font-family:var(--f);font-size:32px;font-weight:500;
+  padding:8px 26px 8px 0;outline:none;transition:border-color .15s;
+}
+.ni:focus{border-bottom-color:var(--t1)}
+
+.btn-main{
+  width:100%;padding:17px;background:var(--orange);color:#fff;border:none;
+  font-family:var(--f);font-size:12px;font-weight:500;letter-spacing:3px;
+  text-transform:uppercase;cursor:pointer;border-radius:var(--r);-webkit-appearance:none;
+}
+.btn-main:active{opacity:.7}
+.btn-main:disabled{opacity:.3}
+
+.btn-sec{
+  width:100%;padding:14px;background:transparent;color:var(--t2);
+  border:1px solid var(--b2);font-family:var(--f);font-size:11px;
+  font-weight:500;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;border-radius:var(--r);-webkit-appearance:none;
+}
+.btn-sec:active{opacity:.6}
+
+.pr-badge{
+  display:inline-flex;align-items:center;background:var(--pr);color:#000;
+  font-size:8px;font-weight:500;letter-spacing:1.5px;
+  padding:2px 6px;border-radius:2px;text-transform:uppercase;
+  vertical-align:middle;margin-left:6px;
+}
+
+.status{font-size:10px;color:var(--t3);letter-spacing:1px;text-align:center;padding:8px 0;min-height:28px;font-weight:400}
+.status.err{color:#e55}
+
+/* SUMMARY */
+.summary-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-top:20px}
+.summary-title{font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.sum-stat{text-align:center}
+.sum-val{font-size:24px;font-weight:500;color:var(--t1)}
+.sum-lbl{font-size:8px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:3px;font-weight:500}
+.summary-empty{font-size:11px;color:var(--t3);letter-spacing:1px;font-weight:400}
+
+.ex-block{margin-bottom:14px}
+.ex-block-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ex-block-name{font-size:13px;font-weight:500;color:var(--t1);display:flex;align-items:center}
+.ex-block-meta{font-size:10px;color:var(--t3)}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0 7px 10px;border-left:2px solid var(--b2);margin-bottom:2px}
+.set-row-info{font-size:12px;color:var(--t2);font-weight:400}
+.set-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:20px;padding:2px 8px;line-height:1}
+.set-del:active{color:var(--t1)}
+
+/* SAVE ROUTINE */
+.save-routine-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--b1)}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.stat{background:var(--s1);border:1px solid var(--b1);padding:14px 12px;border-radius:var(--r)}
+.stat-v{font-size:26px;font-weight:500;color:var(--t1)}
+.stat-l{font-size:9px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:4px;font-weight:500}
+
+/* CHARTS */
+.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:10px;letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;font-weight:500}
+.chart-sel{
+  background:var(--s2);border:1px solid var(--b2);color:var(--t2);
+  font-family:var(--f);font-size:11px;font-weight:500;
+  padding:6px 10px;border-radius:var(--r);outline:none;max-width:150px;
+}
+.chart-sel option{background:var(--s2)}
+
+/* HISTORY */
+.day-group{margin-bottom:24px}
+.day-hd{font-size:10px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:8px;font-weight:500}
+.h-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--b1)}
+.h-name{font-size:14px;font-weight:500}
+.h-meta{font-size:12px;color:var(--t2);text-align:right;font-weight:400}
+.h-vol{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* ROUTINES */
+.routine-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.routine-name{font-size:15px;font-weight:500;color:var(--t1);margin-bottom:6px}
+.routine-exlist{font-size:12px;color:var(--t2);font-weight:400;line-height:1.7;margin-bottom:14px}
+.routine-actions{display:flex;gap:8px}
+.routine-btn{
+  flex:1;padding:11px;background:transparent;border:1px solid var(--b2);
+  color:var(--t2);font-family:var(--f);font-size:11px;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:var(--r);
+}
+.routine-btn:active{opacity:.6}
+.routine-btn.load{border-color:var(--orange);color:var(--orange)}
+.routine-empty{color:var(--t3);font-size:11px;letter-spacing:1px;padding:32px 0;text-align:center;line-height:1.8}
+
+/* MODAL */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-bg.show{opacity:1;pointer-events:all}
+.modal{
+  background:var(--s1);border:1px solid var(--b2);border-radius:10px 10px 0 0;
+  padding:24px 20px;padding-bottom:calc(24px + var(--safe-bottom));
+  width:100%;max-width:480px;
+  transform:translateY(30px);transition:transform .2s;
+}
+.modal-bg.show .modal{transform:translateY(0)}
+.modal-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;color:var(--t2);font-weight:500}
+.modal-input{
+  width:100%;background:transparent;border:none;border-bottom:1px solid var(--b2);
+  color:var(--t1);font-family:var(--f);font-size:20px;font-weight:500;
+  padding:10px 0;outline:none;margin-bottom:22px;
+}
+.modal-input:focus{border-bottom-color:var(--orange)}
+.modal-btns{display:flex;gap:10px}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--orange);color:#fff;font-family:var(--f);
+  font-size:11px;font-weight:500;letter-spacing:2px;
+  padding:11px 20px;border-radius:var(--r);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;pointer-events:none;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.no-data{color:var(--t3);font-size:11px;padding:24px 0;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="logo">FIT<em>LOG</em></div>
+    <div class="datestamp" id="ds"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="sw('log')">Log</button>
+    <button class="tab" onclick="sw('progress')">Progress</button>
+    <button class="tab" onclick="sw('history')">History</button>
+    <button class="tab" onclick="sw('routines')">Routines</button>
+  </div>
+  <div class="scroll">
+
+    <!-- LOG -->
+    <div id="tab-log" class="panel on">
+      <div class="select-row">
+        <div class="sel-wrap">
+          <span class="slabel">Muscle group</span>
+          <select class="styled-sel" id="muscleSelect" onchange="onMuscleChange()">
+            <option value="">— select —</option>
+            <option>Chest</option><option>Back</option><option>Shoulders</option>
+            <option>Arms</option><option>Legs</option><option>Core</option><option>Cardio</option>
+          </select>
+        </div>
+        <div class="sel-wrap">
+          <span class="slabel">Exercise</span>
+          <select class="styled-sel" id="exerciseSelect" onchange="onExerciseChange()" disabled>
+            <option value="">— muscle first —</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <span class="slabel">Or type manually</span>
+        <input class="ghost" id="exIn" placeholder="e.g. Cable Fly" autocomplete="off" autocorrect="off" autocapitalize="words"/>
+      </div>
+
+      <div class="num-grid">
+        <div class="nf"><span class="slabel">Sets</span><input class="ni" id="setsIn" type="number" inputmode="numeric" min="1" value="3"/></div>
+        <div class="nf"><span class="slabel">Reps</span><input class="ni" id="repsIn" type="number" inputmode="numeric" min="1" value="8"/></div>
+        <div class="nf"><span class="slabel">Weight</span><input class="ni" id="wtIn" type="number" inputmode="decimal" min="0" step="2.5" value="60"/><span class="unit">KG</span></div>
+      </div>
+
+      <button class="btn-main" id="logBtn" onclick="logSet()">+ LOG SET</button>
+      <div class="status" id="logStatus"></div>
+
+      <div class="summary-card">
+        <div class="summary-title">Session Summary</div>
+        <div class="summary-stats">
+          <div class="sum-stat"><div class="sum-val" id="sumSets">0</div><div class="sum-lbl">Sets</div></div>
+          <div class="sum-stat"><div class="sum-val" id="sumEx">0</div><div class="sum-lbl">Exercises</div></div>
+          <div class="sum-stat"><div class="sum-val" id="sumVol">0</div><div class="sum-lbl">Vol kg</div></div>
+        </div>
+        <div style="height:1px;background:var(--b1);margin:0 0 14px"></div>
+        <div id="summaryBreakdown"></div>
+        <div id="saveRoutineWrap" style="display:none" class="save-routine-wrap">
+          <button class="btn-sec" onclick="openModal()">Save as Routine</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="tab-progress" class="panel">
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="chart-card">
+        <div class="chart-hd">
+          <span class="chart-title">Max Weight (kg)</span>
+          <select class="chart-sel" id="csel1" onchange="drawChart1()"></select>
+        </div>
+        <canvas id="c1"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-hd">
+          <span class="chart-title">Volume / Session</span>
+          <select class="chart-sel" id="csel2" onchange="drawChart2()"></select>
+        </div>
+        <canvas id="c2"></canvas>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="tab-history" class="panel">
+      <div id="histList"></div>
+    </div>
+
+    <!-- ROUTINES -->
+    <div id="tab-routines" class="panel">
+      <div id="routineList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SAVE ROUTINE MODAL -->
+<div class="modal-bg" id="modalBg" onclick="bgClick(event)">
+  <div class="modal">
+    <div class="modal-title">Name this routine</div>
+    <input class="modal-input" id="routineNameIn" placeholder="e.g. Push Day" autocorrect="off" autocapitalize="words"
+      onkeydown="if(event.key==='Enter') saveRoutine()"/>
+    <div class="modal-btns">
+      <button class="btn-sec" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn-main" style="flex:2;padding:14px" onclick="saveRoutine()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────
+const SB_URL = 'https://kghccccgvjyzdwbaklxj.supabase.co';
+const SB_KEY = 'sb_publishable_RA-9pM-9ps1AVgHxkzrVkg_LgtrFj-q';
+// ───────────────────────────────────────────────────────
+
+const HDR = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+const sbGet  = async p => (await fetch(SB_URL+p,{headers:HDR})).json();
+const sbPost = async (p,b) => (await fetch(SB_URL+p,{method:'POST',headers:{...HDR,'Prefer':'return=representation'},body:JSON.stringify(b)})).json();
+const sbDel  = async p => fetch(SB_URL+p,{method:'DELETE',headers:HDR});
+
+const LIBRARY = {
+  Chest:     ['Bench Press','Incline Bench Press','Decline Bench Press','Dumbbell Fly','Cable Fly','Push-Up','Chest Dip','Pec Deck'],
+  Back:      ['Deadlift','Pull-Up','Barbell Row','Seated Cable Row','Lat Pulldown','T-Bar Row','Single Arm Row','Face Pull'],
+  Shoulders: ['Overhead Press','Lateral Raise','Front Raise','Arnold Press','Rear Delt Fly','Upright Row','Cable Lateral Raise'],
+  Arms:      ['Barbell Curl','Dumbbell Curl','Hammer Curl','Preacher Curl','Tricep Pushdown','Skull Crusher','Overhead Tricep Ext','Dip'],
+  Legs:      ['Squat','Romanian Deadlift','Leg Press','Hack Squat','Leg Curl','Leg Extension','Bulgarian Split Squat','Calf Raise'],
+  Core:      ['Plank','Crunch','Hanging Leg Raise','Cable Crunch','Ab Rollout','Russian Twist','Woodchop'],
+  Cardio:    ['Running','Cycling','Rowing','Jump Rope','Stair Climb','HIIT']
+};
+
+let allSets = [], todaySets = [], ch1 = null, ch2 = null;
+let routines = JSON.parse(localStorage.getItem('fitlog_routines') || '[]');
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+const fmtDate  = d  => new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+
+document.getElementById('ds').textContent = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}).toUpperCase();
+
+function toast(msg, dur=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── DROPDOWNS ──────────────────────────────────────────
+function onMuscleChange() {
+  const m = document.getElementById('muscleSelect').value;
+  const s = document.getElementById('exerciseSelect');
+  document.getElementById('exIn').value = '';
+  if (!m) { s.innerHTML = '<option value="">— muscle first —</option>'; s.disabled = true; return; }
+  s.innerHTML = '<option value="">— select —</option>' + LIBRARY[m].map(e => `<option value="${e}">${e}</option>`).join('');
+  s.disabled = false;
+}
+function onExerciseChange() {
+  const v = document.getElementById('exerciseSelect').value;
+  if (!v) return;
+  document.getElementById('exIn').value = v;
+  const last = allSets.filter(s => s.exercise_name === v).slice(-1)[0];
+  if (last) { document.getElementById('wtIn').value = last.weight; document.getElementById('repsIn').value = last.reps; }
+}
+
+// ── PR ─────────────────────────────────────────────────
+function isPR(ex, w) {
+  const prev = allSets.filter(s => s.exercise_name === ex);
+  return !prev.length || w > Math.max(...prev.map(s => +s.weight));
+}
+
+// ── SUMMARY ────────────────────────────────────────────
+function renderSummary() {
+  const ts  = todaySets.length;
+  const tv  = todaySets.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
+  const exs = [...new Set(todaySets.map(s => s.exercise_name))];
+  document.getElementById('sumSets').textContent = ts;
+  document.getElementById('sumEx').textContent   = exs.length;
+  document.getElementById('sumVol').textContent  = tv;
+  document.getElementById('saveRoutineWrap').style.display = exs.length ? 'block' : 'none';
+
+  const bd = document.getElementById('summaryBreakdown');
+  if (!exs.length) { bd.innerHTML = '<div class="summary-empty">Log a set to see your breakdown.</div>'; return; }
+
+  bd.innerHTML = exs.map(ex => {
+    const es   = todaySets.filter(s => s.exercise_name === ex);
+    const mw   = Math.max(...es.map(s => +s.weight));
+    const vol  = es.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
+    const hasPR = es.some(s => s._pr);
+    const rows = es.map(s => `
+      <div class="set-row">
+        <span class="set-row-info">${s.sets}×${s.reps} @ ${s.weight}kg</span>
+        <button class="set-del" onclick="delSet('${s.id}')">×</button>
+      </div>`).join('');
+    return `
+      <div class="ex-block">
+        <div class="ex-block-head">
+          <div class="ex-block-name">${ex}${hasPR ? '<span class="pr-badge">★ PR</span>' : ''}</div>
+          <span class="ex-block-meta">max ${mw}kg · ${vol}kg vol</span>
+        </div>
+        ${rows}
+      </div>`;
+  }).join('');
+}
+
+// ── LOG SET ────────────────────────────────────────────
+async function logSet() {
+  const ex = document.getElementById('exIn').value.trim();
+  if (!ex) { document.getElementById('exIn').focus(); return; }
+  const sets   = +document.getElementById('setsIn').value;
+  const reps   = +document.getElementById('repsIn').value;
+  const weight = +document.getElementById('wtIn').value;
+  const btn = document.getElementById('logBtn');
+  const st  = document.getElementById('logStatus');
+  const pr  = isPR(ex, weight);
+  btn.disabled = true; st.textContent = 'saving...'; st.className = 'status';
+  try {
+    const res = await sbPost('/rest/v1/sets', {exercise_name:ex, sets, reps, weight, logged_date:todayStr()});
+    if (res.error) throw new Error(res.error.message);
+    const entry = Array.isArray(res) ? res[0] : res;
+    entry._pr = pr;
+    allSets.push(entry); todaySets.push(entry);
+    if (pr) toast('★ NEW PR — ' + ex + ' ' + weight + 'kg');
+    renderSummary(); st.textContent = '';
+  } catch(e) {
+    st.textContent = '⚠ save failed — check Supabase setup';
+    st.className = 'status err'; console.error(e);
+  }
+  btn.disabled = false;
+}
+
+// ── DELETE ─────────────────────────────────────────────
+async function delSet(id) {
+  await sbDel('/rest/v1/sets?id=eq.' + id);
+  allSets    = allSets.filter(s => s.id !== id);
+  todaySets  = todaySets.filter(s => s.id !== id);
+  renderSummary();
+}
+
+// ── ROUTINES ───────────────────────────────────────────
+function openModal() {
+  document.getElementById('routineNameIn').value = '';
+  document.getElementById('modalBg').classList.add('show');
+  setTimeout(() => document.getElementById('routineNameIn').focus(), 250);
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+function bgClick(e)   { if (e.target === document.getElementById('modalBg')) closeModal(); }
+
+function saveRoutine() {
+  const name = document.getElementById('routineNameIn').value.trim();
+  if (!name) return;
+  const exercises = [...new Set(todaySets.map(s => s.exercise_name))];
+  routines.unshift({ id: Date.now(), name, exercises });
+  localStorage.setItem('fitlog_routines', JSON.stringify(routines));
+  closeModal();
+  toast('Saved: ' + name);
+}
+
+function loadRoutine(id) {
+  const r = routines.find(x => x.id === id);
+  if (!r) return;
+  // put first exercise in the input ready to go
+  document.getElementById('exIn').value = r.exercises[0] || '';
+  sw('log');
+  toast('Loaded: ' + r.name);
+}
+
+function deleteRoutine(id) {
+  routines = routines.filter(r => r.id !== id);
+  localStorage.setItem('fitlog_routines', JSON.stringify(routines));
+  renderRoutines();
+}
+
+function renderRoutines() {
+  const c = document.getElementById('routineList');
+  if (!routines.length) {
+    c.innerHTML = '<div class="routine-empty">No routines saved yet.<br>Log a session then tap "Save as Routine".</div>';
+    return;
+  }
+  c.innerHTML = routines.map(r => `
+    <div class="routine-card">
+      <div class="routine-name">${r.name}</div>
+      <div class="routine-exlist">${r.exercises.join(' · ')}</div>
+      <div class="routine-actions">
+        <button class="routine-btn load" onclick="loadRoutine(${r.id})">Load</button>
+        <button class="routine-btn" onclick="deleteRoutine(${r.id})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── STATS ──────────────────────────────────────────────
+function renderStats() {
+  const total = allSets.length;
+  const vol   = allSets.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
+  const days  = [...new Set(allSets.map(s => s.logged_date))].length;
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat"><div class="stat-v">${total}</div><div class="stat-l">Sets</div></div>
+    <div class="stat"><div class="stat-v">${days}</div><div class="stat-l">Sessions</div></div>
+    <div class="stat"><div class="stat-v">${(vol/1000).toFixed(1)}t</div><div class="stat-l">Volume</div></div>`;
+}
+
+function populateSels() {
+  const exs = [...new Set(allSets.map(s => s.exercise_name))];
+  ['csel1','csel2'].forEach(id => {
+    document.getElementById(id).innerHTML = exs.length
+      ? exs.map(e => `<option>${e}</option>`).join('')
+      : '<option>No data yet</option>';
+  });
+}
+
+function sessionData(ex) {
+  const bd = {};
+  allSets.filter(s => s.exercise_name === ex).forEach(s => {
+    if (!bd[s.logged_date]) bd[s.logged_date] = {mw:0, vol:0};
+    bd[s.logged_date].mw  = Math.max(bd[s.logged_date].mw, +s.weight);
+    bd[s.logged_date].vol += s.sets * s.reps * s.weight;
+  });
+  const dates = Object.keys(bd).sort();
+  return { dates, mw: dates.map(d => bd[d].mw), vol: dates.map(d => bd[d].vol) };
+}
+
+function makeChart(id, type, labels, data) {
+  const canvas = document.getElementById(id);
+  const w = canvas.parentElement.clientWidth - 32;
+  canvas.width = w; canvas.height = 160;
+  canvas.style.width = w + 'px'; canvas.style.height = '160px';
+  return new Chart(canvas.getContext('2d'), {
+    type,
+    data: { labels, datasets: [{
+      data,
+      borderColor: '#ff7000',
+      backgroundColor: type === 'line' ? 'rgba(255,112,0,0.08)' : 'rgba(255,112,0,0.15)',
+      ...(type==='line' ? {tension:0.35,pointRadius:3,pointBackgroundColor:'#ff7000',borderWidth:2,fill:true} : {}),
+      ...(type==='bar'  ? {borderColor:'rgba(255,112,0,0.4)',borderWidth:1} : {})
+    }]},
+    options: {
+      responsive: false, animation: false,
+      plugins: { legend:{display:false}, tooltip:{
+        backgroundColor:'#1a1a1a',borderColor:'#333',borderWidth:1,
+        titleColor:'#888',bodyColor:'#f2f2f2',
+        titleFont:{family:'Helvetica Neue',size:10},
+        bodyFont:{family:'Helvetica Neue',size:12}
+      }},
+      scales: {
+        x: {grid:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Helvetica Neue',size:9},maxTicksLimit:5},border:{color:'#2a2a2a'}},
+        y: {grid:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Helvetica Neue',size:9}},border:{color:'#2a2a2a'}}
+      }
+    }
+  });
+}
+
+function drawChart1() { const d = sessionData(document.getElementById('csel1').value); if(ch1) ch1.destroy(); ch1 = makeChart('c1','line',d.dates,d.mw); }
+function drawChart2() { const d = sessionData(document.getElementById('csel2').value); if(ch2) ch2.destroy(); ch2 = makeChart('c2','bar',d.dates,d.vol); }
+function drawCharts() { drawChart1(); drawChart2(); }
+
+// ── HISTORY ────────────────────────────────────────────
+function renderHistory() {
+  const c = document.getElementById('histList');
+  const bd = {};
+  allSets.forEach(s => { if (!bd[s.logged_date]) bd[s.logged_date] = []; bd[s.logged_date].push(s); });
+  const dates = Object.keys(bd).sort().reverse();
+  if (!dates.length) { c.innerHTML = '<div class="no-data">No history yet.</div>'; return; }
+  c.innerHTML = dates.map(d => {
+    const sets = bd[d];
+    const vol  = sets.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
+    const rows = sets.map(s => `
+      <div class="h-row">
+        <div><span class="h-name">${s.exercise_name}</span>${s._pr ? '<span class="pr-badge">★ PR</span>' : ''}</div>
+        <div><div class="h-meta">${s.sets}×${s.reps} @ ${s.weight}kg</div><div class="h-vol">${s.sets*s.reps*s.weight}kg vol</div></div>
+      </div>`).join('');
+    return `<div class="day-group"><div class="day-hd">${fmtDate(d)} · ${sets.length} sets · ${vol}kg</div>${rows}</div>`;
+  }).join('');
+}
+
+// ── TAB SWITCH ─────────────────────────────────────────
+function sw(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on', ['log','progress','history','routines'][i] === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab-' + name).classList.add('on');
+  if (name === 'progress') { renderStats(); populateSels(); setTimeout(drawCharts, 80); }
+  if (name === 'history')  renderHistory();
+  if (name === 'routines') renderRoutines();
+}
+
+// ── INIT ───────────────────────────────────────────────
+async function init() {
+  const st = document.getElementById('logStatus');
+  st.textContent = 'connecting...';
+  try {
+    const data = await sbGet('/rest/v1/sets?select=*&order=created_at.asc');
+    if (data.error) throw new Error(data.error.message || data.error.hint);
+    allSets   = data || [];
+    todaySets = allSets.filter(s => s.logged_date === todayStr());
+    const prMap = {};
+    allSets.forEach(s => {
+      const p = prMap[s.exercise_name] || 0;
+      s._pr = +s.weight > p;
+      if (+s.weight > p) prMap[s.exercise_name] = +s.weight;
+    });
+    st.textContent = '';
+    renderSummary();
+  } catch(e) {
+    st.textContent = '⚠ could not connect — run SQL setup in Supabase first';
+    st.className = 'status err'; console.error(e);
+    renderSummary();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
