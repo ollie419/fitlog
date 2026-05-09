@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="FITLOG"/>
 <title>FITLOG</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -29,6 +30,43 @@ html,body{
 }
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%}
 
+/* AUTH SCREEN */
+#authScreen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100vh;height:100dvh;padding:40px 24px;
+  padding-top:calc(40px + var(--safe-top));
+  padding-bottom:calc(40px + var(--safe-bottom));
+}
+.auth-logo{font-size:32px;font-weight:500;letter-spacing:6px;color:var(--t1);text-transform:uppercase;margin-bottom:8px}
+.auth-logo em{color:var(--orange);font-style:normal}
+.auth-tagline{font-size:11px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:48px}
+.auth-tabs{display:flex;gap:0;margin-bottom:32px;border-bottom:1px solid var(--b1);width:100%}
+.auth-tab{flex:1;padding:12px 0;font-size:11px;letter-spacing:2px;color:var(--t3);
+  text-transform:uppercase;text-align:center;cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;font-family:var(--f);font-weight:500;outline:none}
+.auth-tab.on{color:var(--t1);border-bottom-color:var(--orange)}
+.auth-form{width:100%;max-width:360px}
+.auth-field{margin-bottom:20px}
+.auth-input{
+  width:100%;background:transparent;border:none;border-bottom:1px solid var(--b2);
+  color:var(--t1);font-family:var(--f);font-size:16px;font-weight:500;
+  padding:10px 0;outline:none;transition:border-color .15s;
+}
+.auth-input:focus{border-bottom-color:var(--orange)}
+.auth-input::placeholder{color:var(--t4);font-weight:400}
+.auth-btn{
+  width:100%;padding:17px;background:var(--orange);color:#fff;border:none;
+  font-family:var(--f);font-size:12px;font-weight:500;letter-spacing:3px;
+  text-transform:uppercase;cursor:pointer;border-radius:var(--r);
+  margin-top:8px;-webkit-appearance:none;
+}
+.auth-btn:active{opacity:.7}
+.auth-btn:disabled{opacity:.3}
+.auth-status{font-size:11px;color:var(--t3);text-align:center;padding:12px 0;min-height:36px}
+.auth-status.err{color:#e55}
+.auth-status.ok{color:#5c5}
+
+/* TOPBAR */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;padding-top:calc(12px + var(--safe-top));
@@ -36,7 +74,11 @@ html,body{
 }
 .logo{font-size:19px;font-weight:500;letter-spacing:4px;color:var(--t1);text-transform:uppercase}
 .logo em{color:var(--orange);font-style:normal}
+.topbar-right{display:flex;align-items:center;gap:12px}
 .datestamp{font-size:10px;letter-spacing:1.5px;color:var(--t3)}
+.signout-btn{background:none;border:none;color:var(--t3);font-family:var(--f);font-size:10px;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0}
+.signout-btn:active{color:var(--t1)}
 
 .tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
 .tab{
@@ -114,7 +156,6 @@ html,body{
 .status{font-size:10px;color:var(--t3);letter-spacing:1px;text-align:center;padding:8px 0;min-height:28px;font-weight:400}
 .status.err{color:#e55}
 
-/* SUMMARY */
 .summary-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-top:20px}
 .summary-title{font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:14px;font-weight:500}
 .summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
@@ -132,16 +173,13 @@ html,body{
 .set-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:20px;padding:2px 8px;line-height:1}
 .set-del:active{color:var(--t1)}
 
-/* SAVE ROUTINE */
 .save-routine-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--b1)}
 
-/* STATS */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
 .stat{background:var(--s1);border:1px solid var(--b1);padding:14px 12px;border-radius:var(--r)}
 .stat-v{font-size:26px;font-weight:500;color:var(--t1)}
 .stat-l{font-size:9px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:4px;font-weight:500}
 
-/* CHARTS */
 .chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .chart-title{font-size:10px;letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;font-weight:500}
@@ -152,7 +190,6 @@ html,body{
 }
 .chart-sel option{background:var(--s2)}
 
-/* HISTORY */
 .day-group{margin-bottom:24px}
 .day-hd{font-size:10px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:8px;font-weight:500}
 .h-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--b1)}
@@ -160,7 +197,6 @@ html,body{
 .h-meta{font-size:12px;color:var(--t2);text-align:right;font-weight:400}
 .h-vol{font-size:10px;color:var(--t3);margin-top:2px}
 
-/* ROUTINES */
 .routine-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .routine-name{font-size:15px;font-weight:500;color:var(--t1);margin-bottom:6px}
 .routine-exlist{font-size:12px;color:var(--t2);font-weight:400;line-height:1.7;margin-bottom:14px}
@@ -174,7 +210,6 @@ html,body{
 .routine-btn.load{border-color:var(--orange);color:var(--orange)}
 .routine-empty{color:var(--t3);font-size:11px;letter-spacing:1px;padding:32px 0;text-align:center;line-height:1.8}
 
-/* MODAL */
 .modal-bg{
   position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;
   display:flex;align-items:flex-end;justify-content:center;
@@ -197,7 +232,6 @@ html,body{
 .modal-input:focus{border-bottom-color:var(--orange)}
 .modal-btns{display:flex;gap:10px}
 
-/* TOAST */
 .toast{
   position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;
   transform:translateX(-50%) translateY(70px);
@@ -212,10 +246,36 @@ html,body{
 </style>
 </head>
 <body>
-<div id="app">
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <div class="auth-logo">FIT<em>LOG</em></div>
+  <div class="auth-tagline">Track your lifts</div>
+  <div class="auth-tabs">
+    <button class="auth-tab on" onclick="authTab('login')">Sign In</button>
+    <button class="auth-tab" onclick="authTab('signup')">Sign Up</button>
+  </div>
+  <div class="auth-form">
+    <div class="auth-field">
+      <input class="auth-input" id="authEmail" type="email" inputmode="email" placeholder="Email" autocomplete="email" autocapitalize="none"/>
+    </div>
+    <div class="auth-field">
+      <input class="auth-input" id="authPassword" type="password" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') submitAuth()"/>
+    </div>
+    <button class="auth-btn" id="authBtn" onclick="submitAuth()">Sign In</button>
+    <div class="auth-status" id="authStatus"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
   <div class="topbar">
     <div class="logo">FIT<em>LOG</em></div>
-    <div class="datestamp" id="ds"></div>
+    <div class="topbar-right">
+      <div class="datestamp" id="ds"></div>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab on" onclick="sw('log')">Log</button>
@@ -326,10 +386,8 @@ const SB_URL = 'https://kghccccgvjyzdwbaklxj.supabase.co';
 const SB_KEY = 'sb_publishable_RA-9pM-9ps1AVgHxkzrVkg_LgtrFj-q';
 // ───────────────────────────────────────────────────────
 
-const HDR = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
-const sbGet  = async p => (await fetch(SB_URL+p,{headers:HDR})).json();
-const sbPost = async (p,b) => (await fetch(SB_URL+p,{method:'POST',headers:{...HDR,'Prefer':'return=representation'},body:JSON.stringify(b)})).json();
-const sbDel  = async p => fetch(SB_URL+p,{method:'DELETE',headers:HDR});
+const { createClient } = supabase;
+const sb = createClient(SB_URL, SB_KEY);
 
 const LIBRARY = {
   Chest:     ['Bench Press','Incline Bench Press','Decline Bench Press','Dumbbell Fly','Cable Fly','Push-Up','Chest Dip','Pec Deck'],
@@ -341,8 +399,8 @@ const LIBRARY = {
   Cardio:    ['Running','Cycling','Rowing','Jump Rope','Stair Climb','HIIT']
 };
 
-let allSets = [], todaySets = [], ch1 = null, ch2 = null;
-let routines = JSON.parse(localStorage.getItem('fitlog_routines') || '[]');
+let allSets = [], todaySets = [], ch1 = null, ch2 = null, currentUser = null;
+let routines = [];
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 const fmtDate  = d  => new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
@@ -353,6 +411,92 @@ function toast(msg, dur=2800) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── AUTH ───────────────────────────────────────────────
+let authMode = 'login';
+function authTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('on', ['login','signup'][i] === mode));
+  document.getElementById('authBtn').textContent = mode === 'login' ? 'Sign In' : 'Sign Up';
+  document.getElementById('authStatus').textContent = '';
+  document.getElementById('authStatus').className = 'auth-status';
+}
+
+async function submitAuth() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authBtn');
+  const st  = document.getElementById('authStatus');
+  if (!email || !password) { st.textContent = 'Enter email and password'; st.className = 'auth-status err'; return; }
+  btn.disabled = true;
+  st.textContent = authMode === 'login' ? 'Signing in...' : 'Creating account...';
+  st.className = 'auth-status';
+  try {
+    let result;
+    if (authMode === 'login') {
+      result = await sb.auth.signInWithPassword({ email, password });
+    } else {
+      result = await sb.auth.signUp({ email, password });
+    }
+    if (result.error) throw result.error;
+    if (authMode === 'signup' && result.data?.user?.identities?.length === 0) {
+      st.textContent = 'Account already exists — try signing in.';
+      st.className = 'auth-status err';
+      btn.disabled = false;
+      return;
+    }
+    if (authMode === 'signup') {
+      st.textContent = 'Account created — signing you in...';
+      st.className = 'auth-status ok';
+    }
+    // session is set automatically, onAuthStateChange will fire
+  } catch(e) {
+    st.textContent = e.message || 'Something went wrong';
+    st.className = 'auth-status err';
+    btn.disabled = false;
+  }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  allSets = []; todaySets = []; currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  document.getElementById('authStatus').textContent = '';
+  document.getElementById('authBtn').disabled = false;
+}
+
+// Listen for auth state changes
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    await loadData();
+  }
+});
+
+// ── DATA ───────────────────────────────────────────────
+async function loadData() {
+  const st = document.getElementById('logStatus');
+  st.textContent = 'loading...';
+  const { data, error } = await sb.from('sets').select('*').order('created_at', { ascending: true });
+  if (error) { st.textContent = '⚠ ' + error.message; st.className = 'status err'; return; }
+  allSets   = data || [];
+  todaySets = allSets.filter(s => s.logged_date === todayStr());
+  const prMap = {};
+  allSets.forEach(s => {
+    const p = prMap[s.exercise_name] || 0;
+    s._pr = +s.weight > p;
+    if (+s.weight > p) prMap[s.exercise_name] = +s.weight;
+  });
+  // load routines per user
+  routines = JSON.parse(localStorage.getItem('fitlog_routines_' + currentUser.id) || '[]');
+  st.textContent = '';
+  renderSummary();
 }
 
 // ── DROPDOWNS ──────────────────────────────────────────
@@ -387,16 +531,14 @@ function renderSummary() {
   document.getElementById('sumEx').textContent   = exs.length;
   document.getElementById('sumVol').textContent  = tv;
   document.getElementById('saveRoutineWrap').style.display = exs.length ? 'block' : 'none';
-
   const bd = document.getElementById('summaryBreakdown');
   if (!exs.length) { bd.innerHTML = '<div class="summary-empty">Log a set to see your breakdown.</div>'; return; }
-
   bd.innerHTML = exs.map(ex => {
-    const es   = todaySets.filter(s => s.exercise_name === ex);
-    const mw   = Math.max(...es.map(s => +s.weight));
-    const vol  = es.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
+    const es    = todaySets.filter(s => s.exercise_name === ex);
+    const mw    = Math.max(...es.map(s => +s.weight));
+    const vol   = es.reduce((a,s) => a + s.sets*s.reps*s.weight, 0);
     const hasPR = es.some(s => s._pr);
-    const rows = es.map(s => `
+    const rows  = es.map(s => `
       <div class="set-row">
         <span class="set-row-info">${s.sets}×${s.reps} @ ${s.weight}kg</span>
         <button class="set-del" onclick="delSet('${s.id}')">×</button>
@@ -423,26 +565,29 @@ async function logSet() {
   const st  = document.getElementById('logStatus');
   const pr  = isPR(ex, weight);
   btn.disabled = true; st.textContent = 'saving...'; st.className = 'status';
-  try {
-    const res = await sbPost('/rest/v1/sets', {exercise_name:ex, sets, reps, weight, logged_date:todayStr()});
-    if (res.error) throw new Error(res.error.message);
-    const entry = Array.isArray(res) ? res[0] : res;
-    entry._pr = pr;
-    allSets.push(entry); todaySets.push(entry);
-    if (pr) toast('★ NEW PR — ' + ex + ' ' + weight + 'kg');
-    renderSummary(); st.textContent = '';
-  } catch(e) {
-    st.textContent = '⚠ save failed — check Supabase setup';
-    st.className = 'status err'; console.error(e);
+  const { data, error } = await sb.from('sets').insert({
+    exercise_name: ex, sets, reps, weight,
+    logged_date: todayStr(),
+    user_id: currentUser.id
+  }).select().single();
+  if (error) {
+    st.textContent = '⚠ ' + error.message;
+    st.className = 'status err';
+    btn.disabled = false;
+    return;
   }
+  data._pr = pr;
+  allSets.push(data); todaySets.push(data);
+  if (pr) toast('★ NEW PR — ' + ex + ' ' + weight + 'kg');
+  renderSummary(); st.textContent = '';
   btn.disabled = false;
 }
 
 // ── DELETE ─────────────────────────────────────────────
 async function delSet(id) {
-  await sbDel('/rest/v1/sets?id=eq.' + id);
-  allSets    = allSets.filter(s => s.id !== id);
-  todaySets  = todaySets.filter(s => s.id !== id);
+  await sb.from('sets').delete().eq('id', id);
+  allSets   = allSets.filter(s => s.id !== id);
+  todaySets = todaySets.filter(s => s.id !== id);
   renderSummary();
 }
 
@@ -460,7 +605,7 @@ function saveRoutine() {
   if (!name) return;
   const exercises = [...new Set(todaySets.map(s => s.exercise_name))];
   routines.unshift({ id: Date.now(), name, exercises });
-  localStorage.setItem('fitlog_routines', JSON.stringify(routines));
+  localStorage.setItem('fitlog_routines_' + currentUser.id, JSON.stringify(routines));
   closeModal();
   toast('Saved: ' + name);
 }
@@ -468,7 +613,6 @@ function saveRoutine() {
 function loadRoutine(id) {
   const r = routines.find(x => x.id === id);
   if (!r) return;
-  // put first exercise in the input ready to go
   document.getElementById('exIn').value = r.exercises[0] || '';
   sw('log');
   toast('Loaded: ' + r.name);
@@ -476,7 +620,7 @@ function loadRoutine(id) {
 
 function deleteRoutine(id) {
   routines = routines.filter(r => r.id !== id);
-  localStorage.setItem('fitlog_routines', JSON.stringify(routines));
+  localStorage.setItem('fitlog_routines_' + currentUser.id, JSON.stringify(routines));
   renderRoutines();
 }
 
@@ -590,32 +734,6 @@ function sw(name) {
   if (name === 'history')  renderHistory();
   if (name === 'routines') renderRoutines();
 }
-
-// ── INIT ───────────────────────────────────────────────
-async function init() {
-  const st = document.getElementById('logStatus');
-  st.textContent = 'connecting...';
-  try {
-    const data = await sbGet('/rest/v1/sets?select=*&order=created_at.asc');
-    if (data.error) throw new Error(data.error.message || data.error.hint);
-    allSets   = data || [];
-    todaySets = allSets.filter(s => s.logged_date === todayStr());
-    const prMap = {};
-    allSets.forEach(s => {
-      const p = prMap[s.exercise_name] || 0;
-      s._pr = +s.weight > p;
-      if (+s.weight > p) prMap[s.exercise_name] = +s.weight;
-    });
-    st.textContent = '';
-    renderSummary();
-  } catch(e) {
-    st.textContent = '⚠ could not connect — run SQL setup in Supabase first';
-    st.className = 'status err'; console.error(e);
-    renderSummary();
-  }
-}
-
-init();
 </script>
 </body>
 </html>
