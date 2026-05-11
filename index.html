@@ -631,14 +631,20 @@ function renderRoutines() {
   c.innerHTML = routines.map(r => `
     <div class="routine-card">
       <div class="routine-name">${r.name}</div>
-      <div class="routine-exlist">${r.exercises.join(' · ')}</div>
+      <div class="routine-exlist" id="exlist-${r.id}" style="display:none">${r.exercises.join(' · ')}</div>
       <div class="routine-actions">
+        <button class="routine-btn" onclick="toggleView('${r.id}')">View</button>
         <button class="routine-btn load" onclick="loadRoutine('${r.id}')">Load</button>
         <button class="routine-btn" onclick="deleteRoutine('${r.id}')">Delete</button>
       </div>
     </div>`).join('');
 }
 
+function toggleView(id) {
+  const el = document.getElementById('exlist-' + id);
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+}
 // ── STATS ──────────────────────────────────────────────
 function renderStats() {
   const total = allSets.length;
